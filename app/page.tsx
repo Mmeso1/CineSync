@@ -129,6 +129,7 @@ export default function Home() {
           className="relative z-10 text-center max-w-2xl mx-auto"
         >
           {/* Floating Particles Background (memoized, stable) */}
+          {/* hello world */}
 
           {/* Logo */}
           <motion.div
