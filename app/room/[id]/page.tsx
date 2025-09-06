@@ -39,7 +39,7 @@ interface Reaction {
   y: number;
 }
 
-const socket = io("http://localhost:4000");
+const socket = io("https://cinesync-backend.onrender.com");
 
 export default function Room() {
   const params = useParams();
@@ -123,6 +123,15 @@ export default function Room() {
   }, []);
 
   useEffect(() => {
+    socket.on("connect", () => {
+      console.log("✅ Connected to backend:", socket.id);
+      socket.emit("join-room", roomId);
+    });
+
+    socket.on("connect_error", (err) => {
+      console.error("❌ Connection failed:", err.message);
+    });
+
     socket.emit("join-room", roomId);
     socket.on("video-event", ({ action, time }) => {
       if (action === "play") {
@@ -155,19 +164,20 @@ export default function Room() {
 
     return () => {
       socket.off("video-event");
+      socket.off("connect_error");
     };
   }, [roomId, roomData.mode]);
 
   const handlePlayPause = () => {
     if (isPlaying) {
-      socket.emit("video-event", { action: "pause" });
+      socket.emit("video-event", { roomId, action: "pause" });
     } else {
-      socket.emit("video-event", { action: "play" });
+      socket.emit("video-event", { roomId, action: "play" });
     }
   };
 
   const handleSeek = (time: number) => {
-    socket.emit("video-event", { action: "seek", time });
+    socket.emit("video-event", { roomId, action: "seek", time });
   };
 
   const handleVolumeChange = (newVolume: number) => {
